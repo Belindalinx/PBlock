@@ -18,8 +18,12 @@ def add_value(tx, last_tx=0):
 #main
 def main():
     add_value(tx_amt())
-    add_value(tx_amt(), pre_gl())
-    print(blockchain)
+
+    while True:
+        add_value(tx_amt(), pre_gl())
+
+        for block in blockchain:
+            print(block)
     return
 
 main()
