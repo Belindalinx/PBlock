@@ -19,6 +19,22 @@ def add_tx(tx, last_tx):
     blockchain.append([last_tx, tx])
     return blockchain
 
+#verify the chain to make sure the ledger not be hacked
+def verify():
+    block_index=0
+    valid=True
+    for block in blockchain:
+        if block_index==0:
+            block_index+=1
+            continue
+        elif block[0]==blockchain[block_index-1]:
+            valid=True
+        else:
+            valid=False
+            break
+        block_index+=1
+    return valid
+
 #display blockchain
 def display_block():
     for block in blockchain:
@@ -53,6 +69,10 @@ def main():
 
         else:
             print(choice, "is a invalid choice")
+
+        if not verify():
+            print("Invalid ledger")
+            break
 
     return
 
