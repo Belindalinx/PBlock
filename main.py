@@ -1,5 +1,8 @@
 #initializing blockchain as a list
-blockchain=[]
+genesis_block={"pre_hash":"", "index":0, "tx":[]}
+blockchain=[genesis_block]
+op_tx=[]
+owner="B"
 
 #get last blockchain value
 def pre_led():
@@ -7,17 +10,28 @@ def pre_led():
         return None
     return blockchain[-1]
 
-#enter a new value
-def tx_amt():
+#get a new transaction data such as recipient and amount
+def tx_data():
+    tx_recipient=input("Who is the recipient ? :")
     tx_amt=float(input("your transaction amount?"))
-    return tx_amt
+    return tx_recipient, tx_amt
 
-#function for add value
-def add_tx(tx, last_tx):
-    if last_tx==None:
-        last_tx=[0]
-    blockchain.append([last_tx, tx])
-    return blockchain
+#add transaction data in to the transaction list
+def add_tx(recipient, sender=owner, amt=0):
+    tx={"sender":sender, "recipient":recipient, "amt":amt}
+    op_tx.append(tx)
+    return
+
+#block mining
+def op_block():
+    pre_block=blockchain[-1]
+    hasha=""
+    for i in pre_block:
+        value=pre_block[i]
+        hasha=hasha+str(value)
+    block={"pre_hash":hasha, "index":len(blockchain), "tx":op_tx}
+    blockchain.append(block)
+
 
 #verify the chain to make sure the ledger not be hacked
 def verify():
@@ -48,8 +62,9 @@ def display_block():
 def menu():
     print("""
 Menu:
-1. Add a new transaction"
-2. Display the block"
+1. Add a new transaction
+2. Display the block
+3. Mine a new block
 Q. Quit
 H. Hack
     """)
@@ -66,11 +81,16 @@ def main():
             print("Good Bye")
 
         elif choice=="1":
-            new_tx=tx_amt()
-            add_tx(new_tx, pre_led())
+            new_tx=tx_data()
+            recipient, amt =new_tx
+            add_tx(recipient, amt=amt)
+            print(op_tx)
 
         elif choice=="2":
             display_block()
+
+        elif choice=="3":
+            op_block()
 
         elif choice=="h":
             if len(blockchain)>=1:
@@ -79,10 +99,10 @@ def main():
         else:
             print(choice, "is a invalid choice")
 
-        if not verify():
-            display_block()
-            print("Invalid ledger")
-            break
+        #if not verify():
+            #display_block()
+            #print("Invalid ledger")
+            #break
 
     return
 
