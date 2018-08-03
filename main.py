@@ -3,6 +3,7 @@ genesis_block={"pre_hash":"", "index":0, "tx":[]}
 blockchain=[genesis_block]
 op_tx=[]
 owner="B"
+participants={"B"}
 
 #get last blockchain value
 def pre_led():
@@ -20,12 +21,19 @@ def tx_data():
 def add_tx(recipient, sender=owner, amt=0):
     tx={"sender":sender, "recipient":recipient, "amt":amt}
     op_tx.append(tx)
+    participants.add(sender)
+    participants.add(recipient)
+
     return
+
+#hash a block
+def hash_block(block):
+    return str([block[i] for i in block])
 
 #block mining
 def op_block():
     pre_block=blockchain[-1]
-    hashb=str([pre_block[i] for i in pre_block])
+    hashb=hash_block(pre_block)
     """
     hashb=""
     for i in pre_block:
@@ -38,6 +46,13 @@ def op_block():
 
 #verify the chain to make sure the ledger not be hacked
 def verify():
+    for (index, block) in enumerate(blockchain):
+        if index==0:
+            continue
+        if block["pre_hash"]!=hash_block(blockchain[index-1]):
+            return False
+        return True
+    """
     #block_index=0
     valid=True
     for block_index in range(len(blockchain)):
@@ -53,6 +68,7 @@ def verify():
             break
         #block_index+=1
     return valid
+    """
 
 #display blockchain
 def display_block():
@@ -68,6 +84,7 @@ Menu:
 1. Add a new transaction
 2. Display the block
 3. Mine a new block
+4. Show participants
 Q. Quit
 H. Hack
     """)
@@ -95,17 +112,22 @@ def main():
         elif choice=="3":
             op_block()
 
+        elif choice=="4":
+            print(participants)
+
         elif choice=="h":
             if len(blockchain)>=1:
-                blockchain[0]=[2]
+                blockchain[0]={"pre_hash":"", "index":0,
+                               "tx":[{"sender":"B",
+                                      "recipient":"a1", "amt":100}]}
 
         else:
             print(choice, "is a invalid choice")
 
-        #if not verify():
-            #display_block()
-            #print("Invalid ledger")
-            #break
+        if not verify():
+            display_block()
+            print("Invalid ledger")
+            break
 
     return
 
