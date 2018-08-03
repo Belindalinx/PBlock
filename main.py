@@ -25,11 +25,14 @@ def add_tx(recipient, sender=owner, amt=0):
 #block mining
 def op_block():
     pre_block=blockchain[-1]
-    hasha=""
+    hashb=str([pre_block[i] for i in pre_block])
+    """
+    hashb=""
     for i in pre_block:
         value=pre_block[i]
-        hasha=hasha+str(value)
-    block={"pre_hash":hasha, "index":len(blockchain), "tx":op_tx}
+        hashb=str(value)
+    """
+    block={"pre_hash":hashb, "index":len(blockchain), "tx":op_tx}
     blockchain.append(block)
 
 
