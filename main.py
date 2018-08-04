@@ -5,11 +5,31 @@ op_tx=[]
 owner="B"
 participants={"B"}
 
+#hash a block
+def hash_block(block):
+    return str([block[i] for i in block])
+
 #get last blockchain value
 def pre_led():
     if len(blockchain)<1:
         return None
     return blockchain[-1]
+
+#get balance
+def balance(participant):
+    tx_sender=[[tx["amt"] for tx in block["tx"] if tx["sender"]==participant] for block in blockchain]
+    sent_amt=0
+    for tx in tx_sender:
+        if len(tx)>0:
+            sent_amt += tx[0]
+    tx_recipient=[[tx["amt"] for tx in block["tx"] if tx["recipient"]==participant] for block in blockchain]
+    receive_amt=0
+    for tx in tx_recipient:
+        if len(tx)>0:
+            receive_amt += tx[0]
+    return receive_amt-sent_amt
+
+
 
 #get a new transaction data such as recipient and amount
 def tx_data():
@@ -23,12 +43,7 @@ def add_tx(recipient, sender=owner, amt=0):
     op_tx.append(tx)
     participants.add(sender)
     participants.add(recipient)
-
     return
-
-#hash a block
-def hash_block(block):
-    return str([block[i] for i in block])
 
 #block mining
 def op_block():
@@ -42,7 +57,7 @@ def op_block():
     """
     block={"pre_hash":hashb, "index":len(blockchain), "tx":op_tx}
     blockchain.append(block)
-
+    return True
 
 #verify the chain to make sure the ledger not be hacked
 def verify():
@@ -110,7 +125,8 @@ def main():
             display_block()
 
         elif choice=="3":
-            op_block()
+            if op_block():
+                op_tx=[]
 
         elif choice=="4":
             print(participants)
@@ -128,6 +144,8 @@ def main():
             display_block()
             print("Invalid ledger")
             break
+
+        print(balance("a"))
 
     return
 
