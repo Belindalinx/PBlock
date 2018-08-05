@@ -1,9 +1,46 @@
 #initializing blockchain as a list
-genesis_block={"pre_hash":"", "index":0, "tx":[]}
-blockchain=[genesis_block]
+MINING_REWARD=10
+GENESIS_BLOCK={"pre_hash":"", "index":0, "tx":[]}
+blockchain=[GENESIS_BLOCK]
 op_tx=[]
 owner="B"
 participants={"B"}
+
+#display blockchain
+def display_block():
+    for block in blockchain:
+        print(block)
+    else:
+        print("-"*20)
+    return
+
+#the function menu to interacte with user
+def menu():
+    print("""
+Menu:
+1. Add a new transaction
+2. Display the block
+3. Mine a new block
+4. Show participants
+Q. Quit
+H. Hack
+    """)
+    choice=input("choose a function you want: ")
+    return choice
+
+#block mining
+def op_block():
+    pre_block=blockchain[-1]
+    hashb=hash_block(pre_block)
+    """
+    hashb=""
+    for i in pre_block:
+        value=pre_block[i]
+        hashb=str(value)
+    """
+    block={"pre_hash":hashb, "index":len(blockchain), "tx":op_tx}
+    blockchain.append(block)
+    return True
 
 #hash a block
 def hash_block(block):
@@ -29,8 +66,6 @@ def balance(participant):
             receive_amt += tx[0]
     return receive_amt-sent_amt
 
-
-
 #get a new transaction data such as recipient and amount
 def tx_data():
     tx_recipient=input("Who is the recipient ? :")
@@ -44,20 +79,6 @@ def add_tx(recipient, sender=owner, amt=0):
     participants.add(sender)
     participants.add(recipient)
     return
-
-#block mining
-def op_block():
-    pre_block=blockchain[-1]
-    hashb=hash_block(pre_block)
-    """
-    hashb=""
-    for i in pre_block:
-        value=pre_block[i]
-        hashb=str(value)
-    """
-    block={"pre_hash":hashb, "index":len(blockchain), "tx":op_tx}
-    blockchain.append(block)
-    return True
 
 #verify the chain to make sure the ledger not be hacked
 def verify():
@@ -82,29 +103,7 @@ def verify():
             valid=False
             break
         #block_index+=1
-    return valid
-    """
-
-#display blockchain
-def display_block():
-    for block in blockchain:
-        print(block)
-    else:
-        print("-"*20)
-    return
-
-def menu():
-    print("""
-Menu:
-1. Add a new transaction
-2. Display the block
-3. Mine a new block
-4. Show participants
-Q. Quit
-H. Hack
-    """)
-    choice=input("choose a function you want: ")
-    return choice
+    return valid    """
 
 #main
 def main():
