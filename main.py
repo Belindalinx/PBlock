@@ -9,6 +9,7 @@ participants={"B"}
 #display blockchain
 def display_block():
     for block in blockchain:
+        print("Block display")
         print(block)
     else:
         print("-"*20)
@@ -28,6 +29,16 @@ H. Hack
     choice=input("choose a function you want: ")
     return choice
 
+#hash a block
+def hash_block(block):
+    return "-".join([str(block[i]) for i in block])
+
+#get last blockchain value
+def pre_led():
+    if len(blockchain)<1:
+        return None
+    return blockchain[-1]
+
 #block mining
 def op_block():
     pre_block=blockchain[-1]
@@ -42,29 +53,21 @@ def op_block():
     blockchain.append(block)
     return True
 
-#hash a block
-def hash_block(block):
-    return str([block[i] for i in block])
-
-#get last blockchain value
-def pre_led():
-    if len(blockchain)<1:
-        return None
-    return blockchain[-1]
-
+"""
 #get balance
 def balance(participant):
-    tx_sender=[[tx["amt"] for tx in block["tx"] if tx["sender"]==participant] for block in blockchain]
+    tx_sender=[[txs["amt"] for txs in block["txs"] if txs["sender"]==participant] for block in blockchain]
     sent_amt=0
     for tx in tx_sender:
         if len(tx)>0:
             sent_amt += tx[0]
-    tx_recipient=[[tx["amt"] for tx in block["tx"] if tx["recipient"]==participant] for block in blockchain]
+    tx_recipient=[[txs["amt"] for txs in block["txs"] if txs["recipient"]==participant] for block in blockchain]
     receive_amt=0
     for tx in tx_recipient:
         if len(tx)>0:
             receive_amt += tx[0]
     return receive_amt-sent_amt
+"""
 
 #get a new transaction data such as recipient and amount
 def tx_data():
@@ -87,8 +90,9 @@ def verify():
             continue
         if block["pre_hash"]!=hash_block(blockchain[index-1]):
             return False
-        return True
-    """
+    return True
+
+"""
     #block_index=0
     valid=True
     for block_index in range(len(blockchain)):
@@ -103,7 +107,8 @@ def verify():
             valid=False
             break
         #block_index+=1
-    return valid    """
+    return valid    
+"""
 
 #main
 def main():
@@ -124,8 +129,7 @@ def main():
             display_block()
 
         elif choice=="3":
-            if op_block():
-                op_tx=[]
+            op_block()
 
         elif choice=="4":
             print(participants)
@@ -134,7 +138,7 @@ def main():
             if len(blockchain)>=1:
                 blockchain[0]={"pre_hash":"", "index":0,
                                "tx":[{"sender":"B",
-                                      "recipient":"a1", "amt":100}]}
+                                      "recipient":"a", "amt":100}]}
 
         else:
             print(choice, "is a invalid choice")
@@ -144,7 +148,7 @@ def main():
             print("Invalid ledger")
             break
 
-        print(balance("a"))
+        #print(balance("B"))
 
     return
 
