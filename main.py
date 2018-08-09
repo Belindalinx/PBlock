@@ -49,25 +49,27 @@ def op_block():
         value=pre_block[i]
         hashb=str(value)
     """
+    mining_rw={"sender":"Mining", "recipient":owner, "amt":MINING_REWARD}
+    op_tx.append(mining_rw)
     block={"pre_hash":hashb, "index":len(blockchain), "tx":op_tx}
     blockchain.append(block)
     return True
 
-"""
+
 #get balance
 def balance(participant):
-    tx_sender=[[txs["amt"] for txs in block["txs"] if txs["sender"]==participant] for block in blockchain]
+    tx_sender=[[tx["amt"] for tx in block["tx"] if tx["sender"]==participant] for block in blockchain]
     sent_amt=0
     for tx in tx_sender:
         if len(tx)>0:
             sent_amt += tx[0]
-    tx_recipient=[[txs["amt"] for txs in block["txs"] if txs["recipient"]==participant] for block in blockchain]
+    tx_recipient=[[tx["amt"] for tx in block["tx"] if tx["recipient"]==participant] for block in blockchain]
     receive_amt=0
     for tx in tx_recipient:
         if len(tx)>0:
             receive_amt += tx[0]
     return receive_amt-sent_amt
-"""
+
 
 #get a new transaction data such as recipient and amount
 def tx_data():
@@ -148,7 +150,7 @@ def main():
             print("Invalid ledger")
             break
 
-        #print(balance("B"))
+        print(balance("B"))
 
     return
 
