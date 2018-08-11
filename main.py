@@ -1,8 +1,8 @@
 #initializing blockchain as a list
 MINING_REWARD=10
-GENESIS_BLOCK={"pre_hash":"", "index":0, "tx":[]}
+GENESIS_BLOCK={"pre_hash":"", "index":0, "txs":[]}
 blockchain=[GENESIS_BLOCK]
-op_tx=[]
+op_txs=[]
 owner="B"
 participants={"B"}
 
@@ -50,20 +50,22 @@ def op_block():
         hashb=str(value)
     """
     mining_rw={"sender":"Mining", "recipient":owner, "amt":MINING_REWARD}
-    op_tx.append(mining_rw)
-    block={"pre_hash":hashb, "index":len(blockchain), "tx":op_tx}
+    op_txs.append(mining_rw)
+    block={"pre_hash":hashb, "index":len(blockchain), "txs":op_txs}
     blockchain.append(block)
     return True
 
 
 #get balance
 def balance(participant):
-    tx_sender=[[tx["amt"] for tx in block["tx"] if tx["sender"]==participant] for block in blockchain]
+    tx_sender=[[tx["amt"] for tx in block["txs"] if tx["sender"]==participant] for block in blockchain]
+    op_tx_sender=[tx["amt"] for tx in op_txs if tx["sender"]==participant]
+    tx_sender.append(op_tx_sender)
     sent_amt=0
     for tx in tx_sender:
         if len(tx)>0:
             sent_amt += tx[0]
-    tx_recipient=[[tx["amt"] for tx in block["tx"] if tx["recipient"]==participant] for block in blockchain]
+    tx_recipient=[[tx["amt"] for tx in block["txs"] if tx["recipient"]==participant] for block in blockchain]
     receive_amt=0
     for tx in tx_recipient:
         if len(tx)>0:
@@ -80,13 +82,24 @@ def tx_data():
 #add transaction data in to the transaction list
 def add_tx(recipient, sender=owner, amt=0):
     tx={"sender":sender, "recipient":recipient, "amt":amt}
-    op_tx.append(tx)
-    participants.add(sender)
-    participants.add(recipient)
-    return
+    if verify_tx(tx):
+        op_txs.append(tx)
+        participants.add(sender)
+        participants.add(recipient)
+        return True
+    return False
+
+
+def verify_tx(tx):
+    sender_balance=balance(tx["sender"])
+    if sender_balance >= tx["amt"]:
+        return True
+    else:
+        return False
+
 
 #verify the chain to make sure the ledger not be hacked
-def verify():
+def verify_chain():
     for (index, block) in enumerate(blockchain):
         if index==0:
             continue
@@ -124,8 +137,11 @@ def main():
         elif choice=="1":
             new_tx=tx_data()
             recipient, amt =new_tx
-            add_tx(recipient, amt=amt)
-            print(op_tx)
+            if add_tx(recipient, amt=amt):
+                print("transaction added")
+            else:
+                print("transaction failed")
+            print(op_txs)
 
         elif choice=="2":
             display_block()
@@ -139,13 +155,13 @@ def main():
         elif choice=="h":
             if len(blockchain)>=1:
                 blockchain[0]={"pre_hash":"", "index":0,
-                               "tx":[{"sender":"B",
+                               "txs":[{"sender":"B",
                                       "recipient":"a", "amt":100}]}
 
         else:
             print(choice, "is a invalid choice")
 
-        if not verify():
+        if not verify_chain():
             display_block()
             print("Invalid ledger")
             break
