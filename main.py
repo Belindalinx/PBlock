@@ -1,10 +1,10 @@
 #initializing blockchain as a list
-MINING_REWARD=10
-GENESIS_BLOCK={"pre_hash":"", "index":0, "txs":[]}
-blockchain=[GENESIS_BLOCK]
-op_txs=[]
-owner="B"
-participants={"B"}
+MINING_REWARD = 10
+GENESIS_BLOCK = {"pre_hash": "", "index": 0, "txs": []}
+blockchain = [GENESIS_BLOCK]
+op_txs = []
+owner = "B"
+participants = {"B"}
 
 #display blockchain
 def display_block():
@@ -26,7 +26,7 @@ Menu:
 Q. Quit
 H. Hack
     """)
-    choice=input("choose a function you want: ")
+    choice = input("choose a function you want: ")
     return choice
 
 #hash a block
@@ -35,53 +35,63 @@ def hash_block(block):
 
 #get last blockchain value
 def pre_led():
-    if len(blockchain)<1:
+    if len(blockchain) < 1:
         return None
     return blockchain[-1]
 
 #block mining
 def op_block():
-    pre_block=blockchain[-1]
-    hashb=hash_block(pre_block)
-    """
-    hashb=""
-    for i in pre_block:
-        value=pre_block[i]
-        hashb=str(value)
-    """
-    mining_rw={"sender":"Mining", "recipient":owner, "amt":MINING_REWARD}
-    op_txs.append(mining_rw)
-    block={"pre_hash":hashb, "index":len(blockchain), "txs":op_txs}
+    pre_block = blockchain[-1]
+    hashed_block = hash_block(pre_block)
+
+    re_tx = {"sender": "Mining",
+             "recipient": owner,
+             "amt": MINING_REWARD}
+
+    copied_txs = op_txs[:]
+    copied_txs.append(re_tx)
+
+    block = {"pre_hash": hashed_block,
+             "index": len(blockchain),
+             "txs": copied_txs}
+
     blockchain.append(block)
     return True
 
 
 #get balance
 def balance(participant):
-    tx_sender=[[tx["amt"] for tx in block["txs"] if tx["sender"]==participant] for block in blockchain]
-    op_tx_sender=[tx["amt"] for tx in op_txs if tx["sender"]==participant]
+    tx_sender = [[tx["amt"] for tx in block["txs"] if tx["sender"] == participant] for block in blockchain]
+    op_tx_sender = [tx["amt"] for tx in op_txs if tx["sender"] == participant]
     tx_sender.append(op_tx_sender)
-    sent_amt=0
+
+    sent_amt = 0
     for tx in tx_sender:
-        if len(tx)>0:
+        if len(tx) > 0:
             sent_amt += tx[0]
-    tx_recipient=[[tx["amt"] for tx in block["txs"] if tx["recipient"]==participant] for block in blockchain]
-    receive_amt=0
+
+    tx_recipient = [[tx["amt"] for tx in block["txs"] if tx["recipient"] == participant] for block in blockchain]
+
+    receive_amt = 0
     for tx in tx_recipient:
-        if len(tx)>0:
+        if len(tx) > 0:
             receive_amt += tx[0]
-    return receive_amt-sent_amt
+
+    return receive_amt - sent_amt
 
 
 #get a new transaction data such as recipient and amount
 def tx_data():
-    tx_recipient=input("Who is the recipient ? :")
-    tx_amt=float(input("your transaction amount?"))
+    tx_recipient = input("Who is the recipient ? :")
+    tx_amt = float(input("your transaction amount?"))
     return tx_recipient, tx_amt
 
 #add transaction data in to the transaction list
-def add_tx(recipient, sender=owner, amt=0):
-    tx={"sender":sender, "recipient":recipient, "amt":amt}
+def add_tx(recipient, sender=owner, amt=1):
+    tx = {"sender": sender,
+          "recipient": recipient,
+          "amt": amt}
+
     if verify_tx(tx):
         op_txs.append(tx)
         participants.add(sender)
@@ -91,19 +101,17 @@ def add_tx(recipient, sender=owner, amt=0):
 
 
 def verify_tx(tx):
-    sender_balance=balance(tx["sender"])
-    if sender_balance >= tx["amt"]:
-        return True
-    else:
-        return False
+    sender_balance = balance(tx["sender"])
+    return sender_balance >= tx["amt"]
+
 
 
 #verify the chain to make sure the ledger not be hacked
 def verify_chain():
     for (index, block) in enumerate(blockchain):
-        if index==0:
+        if index == 0:
             continue
-        if block["pre_hash"]!=hash_block(blockchain[index-1]):
+        if block["pre_hash"] != hash_block(blockchain[index - 1]):
             return False
     return True
 
@@ -127,36 +135,41 @@ def verify_chain():
 
 #main
 def main():
-    choice=""
+    choice = ""
     while choice not in ["q","Q"]:
-        choice=menu()
+        choice = menu()
 
-        if choice.upper()=="Q":
+        if choice.upper() == "Q":
             print("Good Bye")
 
-        elif choice=="1":
-            new_tx=tx_data()
-            recipient, amt =new_tx
+        elif choice == "1":
+            new_tx = tx_data()
+            recipient, amt = new_tx
             if add_tx(recipient, amt=amt):
                 print("transaction added")
             else:
                 print("transaction failed")
             print(op_txs)
 
-        elif choice=="2":
+        elif choice == "2":
             display_block()
 
-        elif choice=="3":
-            op_block()
+        elif choice == "3":
+            if op_block():
+                op_txs = []
 
-        elif choice=="4":
+        elif choice == "4":
             print(participants)
 
-        elif choice=="h":
-            if len(blockchain)>=1:
-                blockchain[0]={"pre_hash":"", "index":0,
-                               "txs":[{"sender":"B",
-                                      "recipient":"a", "amt":100}]}
+        elif choice == "h":
+            if len(blockchain) >= 1:
+                blockchain[0] = {"pre_hash": "", "index": 0,
+                                 "txs": [
+                                     {"sender": "B",
+                                      "recipient": "a",
+                                      "amt": 100}
+                                        ]
+                                }
 
         else:
             print(choice, "is a invalid choice")
