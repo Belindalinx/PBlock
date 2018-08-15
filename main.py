@@ -1,6 +1,9 @@
 #initializing blockchain as a list
 MINING_REWARD = 10
-GENESIS_BLOCK = {"pre_hash": "", "index": 0, "txs": []}
+GENESIS_BLOCK = {"pre_hash": "",
+                 "index": 0,
+                 "txs": []
+                 }
 blockchain = [GENESIS_BLOCK]
 op_txs = []
 owner = "B"
@@ -23,6 +26,7 @@ Menu:
 2. Display the block
 3. Mine a new block
 4. Show participants
+5. Check transaction validity
 Q. Quit
 H. Hack
     """)
@@ -32,12 +36,6 @@ H. Hack
 #hash a block
 def hash_block(block):
     return "-".join([str(block[i]) for i in block])
-
-#get last blockchain value
-def pre_led():
-    if len(blockchain) < 1:
-        return None
-    return blockchain[-1]
 
 #block mining
 def op_block():
@@ -57,6 +55,12 @@ def op_block():
 
     blockchain.append(block)
     return True
+
+#get last blockchain value
+def pre_led():
+    if len(blockchain) < 1:
+        return None
+    return blockchain[-1]
 
 
 #get balance
@@ -87,7 +91,8 @@ def tx_data():
     return tx_recipient, tx_amt
 
 #add transaction data in to the transaction list
-def add_tx(recipient, sender=owner, amt=1):
+def add_tx(recipient, sender=owner, amt=1.0):
+
     tx = {"sender": sender,
           "recipient": recipient,
           "amt": amt}
@@ -104,7 +109,8 @@ def verify_tx(tx):
     sender_balance = balance(tx["sender"])
     return sender_balance >= tx["amt"]
 
-
+def verify_txs():
+    return all([verify_tx(tx) for tx in op_txs])
 
 #verify the chain to make sure the ledger not be hacked
 def verify_chain():
@@ -115,23 +121,6 @@ def verify_chain():
             return False
     return True
 
-"""
-    #block_index=0
-    valid=True
-    for block_index in range(len(blockchain)):
-    #for block in blockchain:
-        if block_index==0:
-            #block_index+=1
-            continue
-        #elif block[0]==blockchain[block_index-1]:
-        elif blockchain[block_index][0]==blockchain[block_index-1]:
-            valid=True
-        else:
-            valid=False
-            break
-        #block_index+=1
-    return valid    
-"""
 
 #main
 def main():
@@ -143,6 +132,7 @@ def main():
             print("Good Bye")
 
         elif choice == "1":
+            global op_txs
             new_tx = tx_data()
             recipient, amt = new_tx
             if add_tx(recipient, amt=amt):
@@ -160,6 +150,12 @@ def main():
 
         elif choice == "4":
             print(participants)
+
+        elif choice == "5":
+            if verify_txs():
+                print("All txs are valid")
+            else:
+                print("There are invalid txs")
 
         elif choice == "h":
             if len(blockchain) >= 1:
