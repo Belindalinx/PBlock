@@ -1,3 +1,5 @@
+import functools
+
 #initializing blockchain as a list
 MINING_REWARD = 10
 GENESIS_BLOCK = {"pre_hash": "",
@@ -69,17 +71,23 @@ def balance(participant):
     op_tx_sender = [tx["amt"] for tx in op_txs if tx["sender"] == participant]
     tx_sender.append(op_tx_sender)
 
+    sent_amt = functools.reduce(lambda tx_sum, tx_amt : tx_sum + tx_amt[0] if len(tx_amt) > 0 else 0, tx_sender, 0)
+    """
     sent_amt = 0
     for tx in tx_sender:
         if len(tx) > 0:
             sent_amt += tx[0]
+    """
 
     tx_recipient = [[tx["amt"] for tx in block["txs"] if tx["recipient"] == participant] for block in blockchain]
 
+    receive_amt = functools.reduce(lambda tx_sum, tx_amt: tx_sum + tx_amt[0] if len(tx_amt) > 0 else 0,tx_recipient,0)
+    """
     receive_amt = 0
     for tx in tx_recipient:
         if len(tx) > 0:
             receive_amt += tx[0]
+    """
 
     return receive_amt - sent_amt
 
