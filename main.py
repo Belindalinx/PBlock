@@ -175,7 +175,7 @@ def main():
             print("Invalid ledger")
             break
 
-        print(balance("B"))
+        print("Balance of {} :{:6.2f} ".format("B", balance("B")))
 
     return
 
