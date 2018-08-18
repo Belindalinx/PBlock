@@ -42,17 +42,19 @@ H. Hack
 def hash_block(block):
     return h.sha256(json.dumps(block).encode()).hexdigest()
 
+#use some of the info in the block to guess the hash
 def valid_proof(txs, pre_hash, proof):
     guess = (str(txs) + str(pre_hash) + str(proof)).encode()
     hashed_guess = h.sha256(guess).hexdigest()
     print(hashed_guess)
     return hashed_guess[0:2] == "00"
 
+#proof of work : change proof value to help to guess the right hash
 def pow():
     pre_block = blockchain[-1]
     hashed_block = hash_block(pre_block)
     proof = 0
-    while valid_proof(op_txs, hashed_block, proof):
+    while not valid_proof(op_txs, hashed_block, proof):
         proof += 1
     return proof
 
@@ -149,6 +151,9 @@ def verify_chain():
         if index == 0:
             continue
         if block["pre_hash"] != hash_block(blockchain[index - 1]):
+            return False
+        if not valid_proof(block["txs"][:-1], block["pre_hash"], block["proof"]):
+            print("PoW is invalid")
             return False
     return True
 
