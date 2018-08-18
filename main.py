@@ -1,6 +1,8 @@
 import hashlib as h
-import json
 import functools
+from collections import OrderedDict
+
+from hash import hash_block
 
 #initializing blockchain as a list
 MINING_REWARD = 10
@@ -38,9 +40,7 @@ H. Hack
     choice = input("choose a function you want: ")
     return choice
 
-#hash a block
-def hash_block(block):
-    return h.sha256(json.dumps(block).encode()).hexdigest()
+
 
 #use some of the info in the block to guess the hash
 def valid_proof(txs, pre_hash, proof):
@@ -66,9 +66,8 @@ def op_block():
 
     proof = pow()
 
-    re_tx = {"sender": "Mining",
-             "recipient": owner,
-             "amt": MINING_REWARD}
+    # re_tx = {"sender": "Mining", "recipient": owner, "amt": MINING_REWARD}
+    re_tx = OrderedDict([("sender", "Mining"), ("recipient", owner), ("amt", MINING_REWARD)])
 
     copied_txs = op_txs[:]
     copied_txs.append(re_tx)
@@ -126,9 +125,8 @@ def tx_data():
 #add transaction data in to the transaction list
 def add_tx(recipient, sender=owner, amt=1.0):
 
-    tx = {"sender": sender,
-          "recipient": recipient,
-          "amt": amt}
+    # tx = {"sender": sender, "recipient": recipient, "amt": amt}
+    tx = OrderedDict([("sender", sender), ("recipient", recipient), ("amt", amt)])
 
     if verify_tx(tx):
         op_txs.append(tx)
