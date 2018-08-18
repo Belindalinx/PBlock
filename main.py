@@ -1,10 +1,13 @@
+import hashlib as h
+import json
 import functools
 
 #initializing blockchain as a list
 MINING_REWARD = 10
 GENESIS_BLOCK = {"pre_hash": "",
                  "index": 0,
-                 "txs": []
+                 "txs": [],
+                 "proof": 100
                  }
 blockchain = [GENESIS_BLOCK]
 op_txs = []
@@ -37,12 +40,29 @@ H. Hack
 
 #hash a block
 def hash_block(block):
-    return "-".join([str(block[i]) for i in block])
+    return h.sha256(json.dumps(block).encode()).hexdigest()
+
+def valid_proof(txs, pre_hash, proof):
+    guess = (str(txs) + str(pre_hash) + str(proof)).encode()
+    hashed_guess = h.sha256(guess).hexdigest()
+    print(hashed_guess)
+    return hashed_guess[0:2] == "00"
+
+def pow():
+    pre_block = blockchain[-1]
+    hashed_block = hash_block(pre_block)
+    proof = 0
+    while valid_proof(op_txs, hashed_block, proof):
+        proof += 1
+    return proof
+
 
 #block mining
 def op_block():
     pre_block = blockchain[-1]
     hashed_block = hash_block(pre_block)
+
+    proof = pow()
 
     re_tx = {"sender": "Mining",
              "recipient": owner,
@@ -53,7 +73,9 @@ def op_block():
 
     block = {"pre_hash": hashed_block,
              "index": len(blockchain),
-             "txs": copied_txs}
+             "txs": copied_txs,
+             "proof": proof
+             }
 
     blockchain.append(block)
     return True
