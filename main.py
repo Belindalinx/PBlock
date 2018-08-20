@@ -1,6 +1,7 @@
 import hashlib as h
 import functools
 from collections import OrderedDict
+import json
 
 from hash import hash_block
 
@@ -40,7 +41,48 @@ H. Hack
     choice = input("choose a function you want: ")
     return choice
 
+def load_data():
+    with open("blockchain.txt", mode = "r") as f:
+        data = f.readlines()
+        global blockchain
+        global op_txs
 
+        # use [:-1] to avoid "\n" in save_data()
+        blockchain = json.loads(data[0][:-1])
+        updated_blockchain = []
+        for block in blockchain:
+            updated_block = {"pre_hash" : block["pre_hash"],
+                             "index" : block["index"],
+                             "proof" : block["proof"],
+                             "txs" : [OrderedDict([("sender", tx["sender"]),
+                                                   ("recipient", tx["recipient"]),
+                                                   ("amt", tx["amt"])
+                                                   ]
+                                                  ) for tx in block["txs"]
+                                      ]
+                             }
+            updated_blockchain.append(updated_block)
+        blockchain = updated_blockchain
+
+        op_txs = json.loads(data[1])
+        updated_op_txs = []
+        for tx in op_txs:
+            updated_tx = OrderedDict([("sender", tx["sender"]),
+                                          ("recipient", tx["recipient"]),
+                                          ("amt", tx["amt"])
+                                          ]
+                                         )
+            updated_op_txs.append(updated_tx)
+        op_txs = updated_op_txs
+
+load_data()
+
+#open a txt file and save data in it.
+def save_data():
+    with open("blockchain.txt", mode = "w") as f :
+        f.write(json.dumps(blockchain))
+        f.write("\n")
+        f.write(json.dumps(op_txs))
 
 #use some of the info in the block to guess the hash
 def valid_proof(txs, pre_hash, proof):
@@ -132,6 +174,7 @@ def add_tx(recipient, sender=owner, amt=1.0):
         op_txs.append(tx)
         participants.add(sender)
         participants.add(recipient)
+        save_data()
         return True
     return False
 
@@ -181,6 +224,7 @@ def main():
         elif choice == "3":
             if op_block():
                 op_txs = []
+                save_data()
 
         elif choice == "4":
             print(participants)
