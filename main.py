@@ -1,11 +1,12 @@
+#import library
 import hashlib as h
 import functools
+import json  #import pickle
 from collections import OrderedDict
-import json
-
 from hash import hash_block
 
-#initializing blockchain as a list
+
+#initializing blockchain
 MINING_REWARD = 10
 GENESIS_BLOCK = {"pre_hash": "",
                  "index": 0,
@@ -17,44 +18,27 @@ op_txs = []
 owner = "B"
 participants = {"B"}
 
-#display blockchain
-def display_block():
-    for block in blockchain:
-        print("Block display")
-        print(block)
-    else:
-        print("-"*20)
-    return
-
-#the function menu to interacte with user
-def menu():
-    print("""
-Menu:
-1. Add a new transaction
-2. Display the block
-3. Mine a new block
-4. Show participants
-5. Check transaction validity
-Q. Quit
-H. Hack
-    """)
-    choice = input("choose a function you want: ")
-    return choice
 
 def load_data():
-    with open("blockchain.txt", mode = "r") as f:
+    with open("blockchain.txt", mode="r") as f:
         data = f.readlines()
         global blockchain
         global op_txs
+
+        """
+        data = pickle.loads(f.readlines())
+        blockchain = data["blockchain"]
+        op_txs = data["op_txs"]
+        """
 
         # use [:-1] to avoid "\n" in save_data()
         blockchain = json.loads(data[0][:-1])
         updated_blockchain = []
         for block in blockchain:
-            updated_block = {"pre_hash" : block["pre_hash"],
-                             "index" : block["index"],
-                             "proof" : block["proof"],
-                             "txs" : [OrderedDict([("sender", tx["sender"]),
+            updated_block = {"pre_hash": block["pre_hash"],
+                             "index": block["index"],
+                             "proof": block["proof"],
+                             "txs": [OrderedDict([("sender", tx["sender"]),
                                                    ("recipient", tx["recipient"]),
                                                    ("amt", tx["amt"])
                                                    ]
@@ -77,12 +61,45 @@ def load_data():
 
 load_data()
 
+
 #open a txt file and save data in it.
 def save_data():
-    with open("blockchain.txt", mode = "w") as f :
+    with open("blockchain.txt", mode="w") as f:
+        """
+        save_data = {"blockchain": blockchain, "op_txs": op_txs}
+        f.write(pickle.dumps(save_data))
+        """
+
         f.write(json.dumps(blockchain))
         f.write("\n")
         f.write(json.dumps(op_txs))
+
+
+#the function menu to interacte with user
+def menu():
+    print("""
+Menu:
+1. Add a new transaction
+2. Display the block
+3. Mine a new block
+4. Show participants
+5. Check transaction validity
+Q. Quit
+H. Hack
+    """)
+    choice = input("choose a function you want: ")
+    return choice
+
+
+#display blockchain
+def display_block():
+    for block in blockchain:
+        print("Block display")
+        print(block)
+    else:
+        print("-"*20)
+    return
+
 
 #use some of the info in the block to guess the hash
 def valid_proof(txs, pre_hash, proof):
@@ -90,6 +107,7 @@ def valid_proof(txs, pre_hash, proof):
     hashed_guess = h.sha256(guess).hexdigest()
     print(hashed_guess)
     return hashed_guess[0:2] == "00"
+
 
 #proof of work : change proof value to help to guess the right hash
 def pow():
@@ -122,6 +140,7 @@ def op_block():
 
     blockchain.append(block)
     return True
+
 
 #get last blockchain value
 def pre_led():
@@ -164,6 +183,7 @@ def tx_data():
     tx_amt = float(input("your transaction amount?"))
     return tx_recipient, tx_amt
 
+
 #add transaction data in to the transaction list
 def add_tx(recipient, sender=owner, amt=1.0):
 
@@ -183,8 +203,10 @@ def verify_tx(tx):
     sender_balance = balance(tx["sender"])
     return sender_balance >= tx["amt"]
 
+
 def verify_txs():
     return all([verify_tx(tx) for tx in op_txs])
+
 
 #verify the chain to make sure the ledger not be hacked
 def verify_chain():
